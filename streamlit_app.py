@@ -141,17 +141,33 @@ elif menu == "DRIVER OPS":
 # ==========================================
 # 📊 ANALYTICS (EDA + FINANCIAL MODEL)
 # ==========================================
+# ==========================================
+# 📊 ANALYTICS (EDA + FINANCIAL MODEL)
+# ==========================================
 elif menu == "ANALYTICS & ROI":
     st.title("📊 Data & Financials")
     
     tab1, tab2 = st.tabs(["Historical Analysis", "ROI Calculator"])
     
     with tab1:
-        up = st.file_uploader("Upload 'garbage_data.csv'", type="csv")
+        st.subheader("Upload Historical Data")
+        up = st.file_uploader("Upload CSV", type="csv")
+        
         if up:
             df = pd.read_csv(up)
-            st.area_chart(df) # Looks better than line chart
-            st.caption("Zone-wise Waste Density Heatmap Generated")
+            
+            # 1. Show the Raw Data Table First (Always works)
+            st.dataframe(df.head())
+            
+            # 2. SAFER PLOTTING LOGIC
+            # Only select columns that are Numbers (Integers or Floats)
+            numeric_df = df.select_dtypes(include=['float', 'int'])
+            
+            if not numeric_df.empty:
+                st.markdown("### 📈 Trends")
+                st.area_chart(numeric_df)
+            else:
+                st.warning("The uploaded CSV has no numeric columns to plot.")
             
     with tab2:
         st.subheader("💰 Cost Savings Model")
@@ -170,5 +186,4 @@ elif menu == "ANALYTICS & ROI":
             
             st.metric("Current Monthly Cost", f"₹{int(cost_trad)}")
             st.metric("Optimized Cost (-40%)", f"₹{int(cost_smart)}", delta="Savings")
-
             st.progress(0.40, text="Efficiency Gain")
