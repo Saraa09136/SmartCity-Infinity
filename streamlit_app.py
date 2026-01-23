@@ -9,7 +9,7 @@ import time
 st.set_page_config(page_title="EcoSort Infinity", page_icon="♻️", layout="wide")
 
 # 🔑 API KEYS
-FIREBASE_URL = "https://smartcity-infinity-default-rtdb.firebaseio.com",
+FIREBASE_URL = "https://smartcity-infinity-default-rtdb.firebaseio.com"
 
 HF_API_KEY = "AIzaSyBbZjxLgTLeXfuBxAWbUL3BPC8hUL4ahnk"
 AI_MODEL_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-large-patch14"
@@ -170,4 +170,5 @@ elif menu == "ANALYTICS & ROI":
             
             st.metric("Current Monthly Cost", f"₹{int(cost_trad)}")
             st.metric("Optimized Cost (-40%)", f"₹{int(cost_smart)}", delta="Savings")
+
             st.progress(0.40, text="Efficiency Gain")
