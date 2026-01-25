@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 import pandas as pd
 import numpy as np
 import pydeck as pdk
@@ -100,18 +101,32 @@ menu = st.sidebar.radio("MODULES", ["COMMAND CENTER", "CITIZEN AI PORTAL", "DRIV
 # ==========================================
 if menu == "COMMAND CENTER":
     st.title("🏙️ Urban Command Interface")
-    
-    # 1. LIVE DATA
+   
+    # --- 1. THE LIVE HEARTBEAT (The Fix) ---
+    # This creates a toggle switch. If ON, it reloads every 3 seconds.
+    col_live, col_btn = st.columns([1, 4])
+    with col_live:
+        live_mode = st.toggle("🔴 LIVE DATA", value=True)
+    with col_btn:
+        if st.button("🔄 Refresh Once"):
+            st.rerun()
+
+    # --- 2. FETCH DATA ---
     data = fetch_live_data()
+   
     if data:
-        # Convert Firebase Dict to DataFrame for Math
+        # Convert Firebase Dict to DataFrame
         live_df = pd.DataFrame.from_dict(data, orient='index')
         live_df['id'] = live_df.index
-        
+       
         # Metrics
         active = len(live_df)
-        avg_fill = live_df['fill_level'].mean()
-        critical = len(live_df[live_df['fill_level'] > 90])
+        if 'fill_level' in live_df.columns:
+            avg_fill = live_df['fill_level'].mean()
+            critical = len(live_df[live_df['fill_level'] > 90])
+        else:
+            avg_fill = 0
+            critical = 0
 
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Active Sensors", active)
@@ -119,40 +134,49 @@ if menu == "COMMAND CENTER":
         c3.metric("Critical Alerts", critical, delta="Urgent" if critical > 0 else "Normal")
         c4.metric("AI System", "ONLINE", delta="Latency: 12ms")
 
-        # 2. 3D VISUALIZATION (Infinity Feature)
+        # --- 3. 3D VISUALIZATION ---
         st.subheader("📍 Real-Time 3D Topology")
-        
+       
         # Prepare data for PyDeck
-        map_data = live_df.copy()
-        map_data['color'] = map_data['fill_level'].apply(lambda x: [255, 0, 0, 200] if x > 90 else [0, 255, 0, 200])
-        
-        layer = pdk.Layer(
-            "ColumnLayer", data=map_data, get_position="[lon, lat]", get_elevation="fill_level", 
-            elevation_scale=10, radius=20, get_fill_color="color", pickable=True, auto_highlight=True
-        )
-        view = pdk.ViewState(latitude=19.0760, longitude=72.8777, zoom=15, pitch=60)
-        st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view, tooltip={"text": "Fill: {fill_level}%"}))
+        if 'lat' in live_df.columns and 'lon' in live_df.columns:
+            map_data = live_df.copy()
+            # Color logic: Red if > 90, Green otherwise
+            map_data['color'] = map_data['fill_level'].apply(lambda x: [255, 0, 0, 200] if x > 90 else [0, 255, 0, 200])
+           
+            layer = pdk.Layer(
+                "ColumnLayer", data=map_data, get_position="[lon, lat]", get_elevation="fill_level",
+                elevation_scale=10, radius=20, get_fill_color="color", pickable=True, auto_highlight=True
+            )
+            view = pdk.ViewState(latitude=19.0760, longitude=72.8777, zoom=15, pitch=60)
+            st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view, tooltip={"text": "Fill: {fill_level}%"}))
+        else:
+            st.warning("Data received, but Lat/Lon missing. Check ESP32.")
 
-        # 3. ROUTE OPTIMIZATION (Previous Code Logic)
+        # --- 4. ROUTE OPTIMIZATION ---
         st.subheader("🚛 Intelligent Routing Engine")
         if st.button("Calculate Optimized Path (OR-Tools)"):
             path, bins = solve_route(live_df)
             if path:
                 st.success(f"Optimal Path Calculated for {len(bins)} Critical Bins!")
-                
-                # Draw 2D Route Map using Folium
+               
                 m = folium.Map(location=[19.0760, 72.8777], zoom_start=14)
                 folium.Marker([19.0760, 72.8777], popup="DEPOT", icon=folium.Icon(color='black', icon='home')).add_to(m)
-                
+               
                 for _, row in bins.iterrows():
                     folium.Marker([row['lat'], row['lon']], popup=f"Fill: {row['fill_level']}%", icon=folium.Icon(color='red')).add_to(m)
-                
+               
                 folium.PolyLine(path, color="blue", weight=5, opacity=0.8).add_to(m)
                 st_folium(m, height=400, width=800)
             else:
                 st.info("No bins satisfy the >80% threshold for pickup.")
     else:
         st.warning("Waiting for Live Data from Firebase...")
+       
+    # --- 5. AUTO-REFRESH TIMER ---
+    if live_mode:
+        time.sleep(3) # Wait 3 seconds
+        st.rerun()    # FORCE RELOAD
+
 
 # ==========================================
 # 📸 CITIZEN PORTAL (AI + Gamification)
@@ -338,3 +362,4 @@ elif menu == "ANALYTICS & ROI":
             })
             fig_w = px.bar(waterfall_data, x="Source", y="Amount", title="Value Drivers")
             st.plotly_chart(fig_w, use_container_width=True)
+
