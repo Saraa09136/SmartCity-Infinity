@@ -174,7 +174,7 @@ if menu == "COMMAND CENTER":
        
     # --- 5. AUTO-REFRESH TIMER ---
     if live_mode:
-        time.sleep(3) # Wait 3 seconds
+        time.sleep(1) # Wait 3 seconds
         st.rerun()    # FORCE RELOAD
 
 
@@ -362,4 +362,5 @@ elif menu == "ANALYTICS & ROI":
             })
             fig_w = px.bar(waterfall_data, x="Source", y="Amount", title="Value Drivers")
             st.plotly_chart(fig_w, use_container_width=True)
+
 
