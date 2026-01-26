@@ -18,7 +18,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 st.set_page_config(page_title="EcoSort Infinity", page_icon="♻️", layout="wide")
 
 # 🔑 API KEYS (Update these!)
-FIREBASE_URL = "https://smart-bin-7efab-default-rtdb.firebaseio.com"
+FIREBASE_URL =   "https://smart-bin-7efab-default-rtdb.firebaseio.com"
 HF_API_KEY = "AIzaSyAfDSZS8t7tNm2C9y8YCR-N_KTMQ5kKdUw"
 AI_MODEL_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-large-patch14"
 
@@ -362,6 +362,3 @@ elif menu == "ANALYTICS & ROI":
             })
             fig_w = px.bar(waterfall_data, x="Source", y="Amount", title="Value Drivers")
             st.plotly_chart(fig_w, use_container_width=True)
-
-
-
