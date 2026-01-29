@@ -14,6 +14,8 @@ import requests
 from io import BytesIO
 from PIL import Image
 import random
+from streamlit_autorefresh import st_autorefresh
+
 
 # Machine Learning & Optimization
 from sklearn.ensemble import RandomForestRegressor
@@ -280,7 +282,7 @@ def fetch_live_data():
             return []
 
         data = r.json()
-        st.write("🔥 Raw Firebase data:", data)
+        #st.write("🔥 Raw Firebase data:", data)
 
         if not data:
             st.warning("Firebase returned EMPTY data")
@@ -919,6 +921,13 @@ from datetime import datetime
 
 def show_realtime_monitoring():
     st.title("🌍 Real-Time Monitoring Dashboard")
+    
+
+    # 🔁 Auto refresh every 5 seconds
+    st_autorefresh(interval=5 * 1000, key="firebase_refresh")
+
+    bins = fetch_live_data()
+
 
     # -------------------------------
     # SAFE DEFAULTS
