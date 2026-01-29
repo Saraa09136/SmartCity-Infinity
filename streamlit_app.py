@@ -924,7 +924,7 @@ def show_realtime_monitoring():
     
 
     # 🔁 Auto refresh every 5 seconds
-    st_autorefresh(interval=5 * 1000, key="firebase_refresh")
+    st_autorefresh(interval=1* 1000, key="firebase_refresh")
 
     bins = fetch_live_data()
 
@@ -2433,3 +2433,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
