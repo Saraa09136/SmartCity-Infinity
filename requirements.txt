@@ -3,9 +3,10 @@ pandas
 numpy
 plotly
 pydeck
+folium
+streamlit-folium
+firebase-admin
+scikit-learn
 requests
 Pillow
-scikit-learn
 ortools
-streamlit-folium
-folium
