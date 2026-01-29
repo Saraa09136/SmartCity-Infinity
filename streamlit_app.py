@@ -275,7 +275,7 @@ def fetch_live_data():
         url = f"{FIREBASE_URL}/bins.json"
         r = requests.get(url, timeout=10)
 
-        st.write("📡 Firebase status code:", r.status_code)
+        #st.write("📡 Firebase status code:", r.status_code)
 
         if r.status_code != 200:
             st.error(f"Firebase error {r.status_code}")
@@ -924,7 +924,7 @@ def show_realtime_monitoring():
     
 
     # 🔁 Auto refresh every 5 seconds
-    st_autorefresh(interval=1* 1000, key="firebase_refresh")
+    st_autorefresh(interval=4* 1000, key="firebase_refresh")
 
     bins = fetch_live_data()
 
@@ -2433,4 +2433,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
